@@ -1,0 +1,60 @@
+-- 🔊 Script: passos e pulo personalizados (atualizado com novo som)
+-- Coloque dentro de Workspace
+
+local workspace = game:GetService("Workspace")
+
+-- volumes
+local FOOTSTEP_VOLUME = 0.3 -- 🔹 volume dos passos reduzido
+local JUMP_VOLUME = 0.3      -- 🔹 volume do pulo reduzido
+
+-- nomes dos sons padrões do personagem
+local soundNames = {"Running", "Jumping", "Landing", "Climbing"}
+
+-- IDs personalizados
+local FOOTSTEP_ID = "rbxassetid://89746938623207"      -- 🔹 som de passos original
+local JUMP_ID = "rbxassetid://76693372307958"          -- 🔹 novo som de pulo
+
+local function setCustomSounds(character)
+    local root = character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    for _, name in ipairs(soundNames) do
+        local sound = root:FindFirstChild(name)
+        if sound and sound:IsA("Sound") then
+            if name == "Running" then
+                sound.SoundId = FOOTSTEP_ID
+                sound.Volume = FOOTSTEP_VOLUME
+                sound:GetPropertyChangedSignal("Volume"):Connect(function()
+                    if sound.Volume ~= FOOTSTEP_VOLUME then
+                        sound.Volume = FOOTSTEP_VOLUME
+                    end
+                end)
+
+            elseif name == "Jumping" then
+                sound.SoundId = JUMP_ID
+                sound.Volume = JUMP_VOLUME
+                sound:GetPropertyChangedSignal("Volume"):Connect(function()
+                    if sound.Volume ~= JUMP_VOLUME then
+                        sound.Volume = JUMP_VOLUME
+                    end
+                end)
+            end
+        end
+    end
+end
+
+-- aplica aos personagens já presentes
+for _, child in ipairs(workspace:GetChildren()) do
+    if child:FindFirstChild("HumanoidRootPart") then
+        setCustomSounds(child)
+    end
+end
+
+-- aplica aos novos personagens que entrarem
+workspace.ChildAdded:Connect(function(child)
+    if child:WaitForChild("HumanoidRootPart", 3) then
+        setCustomSounds(child)
+    end
+end)
+
+print("✅ Som de passos (89746938623207, vol 0.3) e pulo (76693372307958, vol 0.3) aplicados com sucesso!")
